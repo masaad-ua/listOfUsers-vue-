@@ -3,9 +3,258 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Title</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
 </head>
 <body>
-
+	<div id="userList">
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+				<!-- Collect the nav links, forms, and other content for toggling -->
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li class="active">
+							<a href="#"> Vue.js course project</a>
+						</li>
+						<li>
+							<a href="#">Список пользователей</a>
+						</li>
+						<li>
+							<a href="#">Добавить пользователя</a>
+						</li>
+					</ul>
+				</div><!-- /.navbar-collapse -->
+			</div><!-- /.container-fluid -->
+		</nav>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>Имя</th>
+					<th>Фамилия</th>
+					<th>Активен</th>
+					<th>Баланс</th>
+					<th>Email</th>
+					<th>Телефон</th>
+					<th>Зарегистрирован</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr is="user-row" v-for="user in listOfUsers"
+									v-bind:user="user">
+				</tr>
+			</tbody>
+		</table>
+		<div class="form-container">
+			<user-form ></user-form>
+		</div>
+	</div>
 
 </body>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+<script src="https://unpkg.com/vue-async-computed"></script>
+<script>
+	Vue.component('user-row',{
+		props:["user"],
+		template: `
+			<tr>
+				<td>{{ user.id }}</td>
+				<td>{{ user.firstName }}</td>
+				<td>{{ user.lastName }}</td>
+				<td>{{ user.isActive }}</td>
+				<td>{{ user.balance }}</td>
+				<td>{{ user.email }}</td>
+				<td>{{ user.phone }}</td>
+				<td>{{ user.registered }}</td>
+			</tr>`
+	});
+	Vue.component('user-form', {
+		data:function(){
+			return{
+				userModel:{
+					id: 0,
+					isActive: false,
+					balance: 0,
+					picture: "",
+					age: 0,
+					accessLevel: "",
+					firstName: "",
+					lastName: "",
+					company: "",
+					email: "",
+					phone: "",
+					address: "",
+					about: "",
+					registered: ""
+				},
+				errorTypeFile: false
+
+			}
+		},
+		props:{
+
+		},
+		template:`
+			<form>
+				<div class="form-group">
+					<label for="firstName">Имя</label>
+					<input type="text" class="form-control" id="firstName" placeholder="Имя" v-model="userModel.firstName">
+					<span>{{ userModel.firstName }}</span>
+				</div>
+				<div class="form-group">
+					<label for="lastName">Фамилия</label>
+					<input type="text" class="form-control" id="lastName" placeholder="Фамилия"  v-model="userModel.lastName">
+				</div>
+
+				<div class="form-group">
+					<img v-bind:src="(userModel.picture) || 'img/no-image.svg'" alt="user" class="img-thumbnail" style="height: 140px; width: 140px;">
+				</div>
+
+				<div class="form-group">
+					<label for="email">Email</label>
+					<input type="email" class="form-control" id="email" placeholder="email">
+				</div>
+
+				<div class="form-group">
+					<label for="exampleInputFile">URL картинки</label>
+					<input type="file" id="exampleInputFile" v-on:change="addImage($event)">
+				</div>
+
+				<div class="form-group">
+					<label for="age">Возраст</label>
+					<input type="text" class="form-control" id="age" placeholder="Возраст">
+				</div>
+
+				<div class="checkbox">
+					<span> Активный </span>
+					<label>
+						<input type="checkbox" v-model = "userModel.isActive"> Да
+					</label>
+				</div>
+
+				<div class="form-group">
+					<label for="accessLevel">Уровень доступа</label>
+					<input type="text" class="form-control" id="accessLevel" placeholder="Уровень доступа" v-model="userModel.accessLevel">
+				</div>
+
+				<div class="form-group">
+					<label for="balance">Баланс</label>
+					<input type="text" class="form-control" id="balance" placeholder="Баланс" v-model="userModel.balance">
+				</div>
+
+				<div class="form-group">
+					<label for="phone">Телефон</label>
+					<input type="text" class="form-control" id="phone" placeholder="Телефон" v-model="userModel.phone">
+				</div>
+
+				<div class="form-group">
+					<label for="address">Адрес</label>
+					<input type="text" class="form-control" id="address" placeholder="Адрес" v-model="userModel.address">
+				</div>
+
+				<div class="form-group">
+					<label for="company">Компания</label>
+					<input type="text" class="form-control" id="company" placeholder="Компания" v-model="userModel.company">
+				</div>
+
+				<div class="form-group">
+					<label for="about">Биография</label>
+					<input type="text" class="form-control" id="about" placeholder="Адрес" v-model="userModel.about">
+				</div>
+
+				<div class="form-group">
+					<label for="registered">Дата регистрации</label>
+					<input type="text" class="form-control" id="registered" placeholder="Адрес" v-model="userModel.registered">
+				</div>
+
+				<figure>
+					<p>{{ userModel }}</p>
+				</figure>
+
+				<button type="submit" class="btn btn-default">Submit</button>
+			</form>
+		`,
+		methods:{
+			addImage: function(e){
+				var files = e.target.files,
+					reader = new FileReader(),
+					that = this;
+				this.errorTypeFile = false;
+
+				if(/image/.test(files[0].type)){
+					reader.readAsDataURL(files[0]);
+				}
+				else{
+					return this.errorTypeFile = true;
+				}
+
+				reader.onload = function(){
+					that.userModel.picture = reader.result;
+				}
+			}
+		}
+	});
+
+
+	var vm = new Vue({
+		el: "#userList",
+		data: function(){
+			return {
+				show: true,
+				listOfUsers: [
+					{
+						id: 0,
+						isActive: false,
+						balance: 1900.57,
+						picture: "img/",
+						age: 32,
+						accessLevel: "user",
+						firstName: "Mabel",
+						lastName: "Miranda",
+						company: "LIQI",
+						email: "mailto:mabel.miranda@liquidoc.biz|mabel.miranda@liquidoc.biz",
+						phone: "+7 (971) 535-2903",
+						address: "540 Stuyvesant Avenue, Ivanhoe, Arizona, 1682",
+						about: "Enim qui dolor aute elit reprehenderit consectetur proident. Occaecat cupidatat sunt elit qui ullamco Lorem deserunt. Consectetur eiusmod reprehenderit eiusmod duis excepteur laborum voluptate do.",
+						registered: "16.04.2016"
+					},
+					{
+						id: 1,
+						isActive: false,
+						balance: 1900.57,
+						picture: "img/",
+						age: 32,
+						accessLevel: "user",
+						firstName: "Maksym",
+						lastName: "Smirnov",
+						company: "LIQUIDOC",
+						email: "mailto:mabel.miranda@liquidoc.biz|mabel.miranda@liquidoc.biz",
+						phone: "+7 (971) 535-2903",
+						address: "540 Stuyvesant Avenue, Ivanhoe, Arizona, 1682",
+						about: "Enim qui dolor aute elit reprehenderit consectetur proident. Occaecat cupidatat sunt elit qui ullamco Lorem deserunt. Consectetur eiusmod reprehenderit eiusmod duis excepteur laborum voluptate do.",
+						registered: "16.04.2016"
+					},
+					{
+						id: 2,
+						isActive: false,
+						balance: 1900.57,
+						picture: "img/",
+						age: 32,
+						accessLevel: "user",
+						firstName: "Vasiliy",
+						lastName: "Honda",
+						company: "LIQUIDOC",
+						email: "mailto:mabel.miranda@liquidoc.biz|mabel.miranda@liquidoc.biz",
+						phone: "+7 (971) 535-2903",
+						address: "540 Stuyvesant Avenue, Ivanhoe, Arizona, 1682",
+						about: "Enim qui dolor aute elit reprehenderit consectetur proident. Occaecat cupidatat sunt elit qui ullamco Lorem deserunt. Consectetur eiusmod reprehenderit eiusmod duis excepteur laborum voluptate do.",
+						registered: "16.04.2016"
+					}
+				]
+			}
+		},
+		created: function(){
+
+		}
+	})
+</script>
 </html>
